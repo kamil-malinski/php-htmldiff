@@ -62,6 +62,11 @@ class ListDiffLines extends AbstractDiff
         return $diff;
     }
 
+    protected function prepare()
+    {
+        // do nothing
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -82,7 +87,7 @@ class ListDiffLines extends AbstractDiff
         return $this->listByLines($this->oldText, $this->newText);
     }
 
-    protected function listByLines(string $old, string $new) : string
+    protected function listByLines(string $old, string $new): string
     {
         $new = mb_convert_encoding($new, 'HTML-ENTITIES', "UTF-8");
         $old = mb_convert_encoding($old, 'HTML-ENTITIES', "UTF-8");
@@ -101,7 +106,7 @@ class ListDiffLines extends AbstractDiff
         return $this->processOperations($operations, $oldListNode, $newListNode);
     }
 
-    protected function findListNode(DOMDocument $dom) : DOMNode
+    protected function findListNode(DOMDocument $dom): DOMNode
     {
         $xPathQuery = '//' . implode('|//', self::LIST_TAG_NAMES);
         $xPath      = new DOMXPath($dom);
@@ -117,7 +122,7 @@ class ListDiffLines extends AbstractDiff
     /**
      * @return Operation[]
      */
-    protected function getListItemOperations(DOMElement $oldListNode, DOMElement $newListNode) : array
+    protected function getListItemOperations(DOMElement $oldListNode, DOMElement $newListNode): array
     {
         // Prepare arrays of list item content to use in LCS algorithm
         $oldListText = $this->getListTextArray($oldListNode);
@@ -180,7 +185,7 @@ class ListDiffLines extends AbstractDiff
     /**
      * @return string[]
      */
-    protected function getListTextArray(DOMElement $listNode) : array
+    protected function getListTextArray(DOMElement $listNode): array
     {
         $output = [];
 
@@ -195,7 +200,7 @@ class ListDiffLines extends AbstractDiff
         return $output;
     }
 
-    protected function getRelevantNodeText(DOMNode $node) : string
+    protected function getRelevantNodeText(DOMNode $node): string
     {
         if ($node->hasChildNodes() === false) {
             return $node->textContent;
@@ -223,7 +228,7 @@ class ListDiffLines extends AbstractDiff
         return $output;
     }
 
-    protected function deleteListItem(DOMElement $li) : string
+    protected function deleteListItem(DOMElement $li): string
     {
         $this->wrapNodeContent($li, 'del');
 
@@ -232,7 +237,7 @@ class ListDiffLines extends AbstractDiff
         return $this->getOuterText($li);
     }
 
-    protected function addListItem(DOMElement $li, bool $replacement = false) : string
+    protected function addListItem(DOMElement $li, bool $replacement = false): string
     {
         $this->wrapNodeContent($li, 'ins');
 
@@ -247,7 +252,7 @@ class ListDiffLines extends AbstractDiff
     /**
      * @param Operation[] $operations
      */
-    protected function processOperations(array $operations, DOMElement $oldListNode, DOMElement $newListNode) : string
+    protected function processOperations(array $operations, DOMElement $oldListNode, DOMElement $newListNode): string
     {
         $output = '';
 
@@ -260,7 +265,8 @@ class ListDiffLines extends AbstractDiff
             while ($operation->startInOld > ($operation->action === Operation::ADDED ? $indexInOld : $indexInOld + 1)) {
                 $li = $this->getChildNodeByIndex($oldListNode, $indexInOld);
                 $matchingLi = null;
-                if ($operation->startInNew > ($operation->action === Operation::DELETED ? $indexInNew
+                if (
+                    $operation->startInNew > ($operation->action === Operation::DELETED ? $indexInNew
                         : $indexInNew + 1)
                 ) {
                     $matchingLi = $this->getChildNodeByIndex($newListNode, $indexInNew);
@@ -381,24 +387,23 @@ class ListDiffLines extends AbstractDiff
         );
     }
 
-    private function getOuterText(DOMNode $node) : string
+    private function getOuterText(DOMNode $node): string
     {
         return $node->ownerDocument->saveHTML($node);
     }
 
-    private function getInnerHtml(DOMNode $node) : string
+    private function getInnerHtml(DOMNode $node): string
     {
         $bufferDom = new DOMDocument('1.0', 'UTF-8');
 
-        foreach($node->childNodes as $childNode)
-        {
+        foreach ($node->childNodes as $childNode) {
             $bufferDom->appendChild($bufferDom->importNode($childNode, true));
         }
 
         return trim($bufferDom->saveHTML());
     }
 
-    private function setInnerHtml(DOMNode $node, string $html) : void
+    private function setInnerHtml(DOMNode $node, string $html): void
     {
         $html = sprintf('<%s>%s</%s>', 'body', $html, 'body');
         $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
@@ -417,7 +422,7 @@ class ListDiffLines extends AbstractDiff
         $this->nodeCache = [];
     }
 
-    private function wrapNodeContent(DOMElement $node, string $tagName) : void
+    private function wrapNodeContent(DOMElement $node, string $tagName): void
     {
         $childNodes = [];
 
@@ -434,7 +439,7 @@ class ListDiffLines extends AbstractDiff
         }
     }
 
-    private function childCountWithoutTextNode(DOMNode $node) : int
+    private function childCountWithoutTextNode(DOMNode $node): int
     {
         $counter = 0;
 
@@ -449,7 +454,7 @@ class ListDiffLines extends AbstractDiff
         return $counter;
     }
 
-    private function getChildNodeByIndex(DOMNode $node, int $index) : DOMElement
+    private function getChildNodeByIndex(DOMNode $node, int $index): DOMElement
     {
         $nodeHash = spl_object_hash($node);
 
