@@ -41,6 +41,10 @@ class HtmlDiff extends AbstractDiff
 
         return $diff;
     }
+    protected function prepare()
+    {
+        // do nothing
+    }
 
     /**
      * @param $bool
@@ -117,7 +121,7 @@ class HtmlDiff extends AbstractDiff
         return $this->content;
     }
 
-    protected function indexNewWords() : void
+    protected function indexNewWords(): void
     {
         $this->wordIndices = [];
 
@@ -243,13 +247,13 @@ class HtmlDiff extends AbstractDiff
     protected function performOperation($operation)
     {
         switch ($operation->action) {
-            case 'equal' :
+            case 'equal':
                 $this->processEqualOperation($operation);
                 break;
-            case 'delete' :
+            case 'delete':
                 $this->processDeleteOperation($operation, 'diffdel');
                 break;
-            case 'insert' :
+            case 'insert':
                 $this->processInsertOperation($operation, 'diffins');
                 break;
             case 'replace':
@@ -364,7 +368,7 @@ class HtmlDiff extends AbstractDiff
 
         $diff = self::create($oldText, $newText, $this->config);
 
-        return $wrapStart.$diff->build().$wrapEnd;
+        return $wrapStart . $diff->build() . $wrapEnd;
     }
 
     /**
@@ -582,7 +586,7 @@ class HtmlDiff extends AbstractDiff
         return $condition == 'tag' ? $this->isTag($word) : !$this->isTag($word);
     }
 
-    protected function wrapText(string $text, string $tagName, string $cssClass) : string
+    protected function wrapText(string $text, string $tagName, string $cssClass): string
     {
         if (trim($text) === '') {
             return '';
@@ -642,12 +646,12 @@ class HtmlDiff extends AbstractDiff
         return $this->isOpeningTag($item) || $this->isClosingTag($item);
     }
 
-    protected function isOpeningTag($item) : bool
+    protected function isOpeningTag($item): bool
     {
         return preg_match('#<[^>]+>\\s*#iUu', $item) === 1;
     }
 
-    protected function isClosingTag($item) : bool
+    protected function isClosingTag($item): bool
     {
         return preg_match('#</[^>]+>\\s*#iUu', $item) === 1;
     }
@@ -707,7 +711,7 @@ class HtmlDiff extends AbstractDiff
     /**
      * @param MatchingBlock[] $matchingBlocks
      */
-    protected function findMatchingBlocks(int $startInOld, int $endInOld, int $startInNew, int $endInNew, array &$matchingBlocks) : void
+    protected function findMatchingBlocks(int $startInOld, int $endInOld, int $startInNew, int $endInNew, array &$matchingBlocks): void
     {
         $match = $this->findMatch($startInOld, $endInOld, $startInNew, $endInNew);
 
@@ -742,7 +746,7 @@ class HtmlDiff extends AbstractDiff
         return trim($word, '<>');
     }
 
-    protected function findMatch(int $startInOld, int $endInOld, int $startInNew, int $endInNew) : ?MatchingBlock
+    protected function findMatch(int $startInOld, int $endInOld, int $startInNew, int $endInNew): ?MatchingBlock
     {
         $groupDiffs     = $this->isGroupDiffs();
         $bestMatchInOld = $startInOld;
@@ -753,7 +757,7 @@ class HtmlDiff extends AbstractDiff
         for ($indexInOld = $startInOld; $indexInOld < $endInOld; ++$indexInOld) {
             $newMatchLengthAt = [];
 
-            $index = $this->oldWords[ $indexInOld ];
+            $index = $this->oldWords[$indexInOld];
 
             if ($this->isTag($index) === true) {
                 $index = $this->stripTagAttributes($index);
@@ -779,9 +783,9 @@ class HtmlDiff extends AbstractDiff
 
                 $newMatchLengthAt[$indexInNew] = $newMatchLength;
 
-                if ($newMatchLength > $bestMatchSize ||
-                    (
-                        $groupDiffs === true &&
+                if (
+                    $newMatchLength > $bestMatchSize ||
+                    ($groupDiffs === true &&
                         $bestMatchSize > 0 &&
                         $this->oldTextIsOnlyWhitespace($bestMatchInOld, $bestMatchSize) === true
                     )
@@ -796,9 +800,9 @@ class HtmlDiff extends AbstractDiff
         }
 
         // Skip match if none found or match consists only of whitespace
-        if ($bestMatchSize !== 0 &&
-            (
-                $groupDiffs === false ||
+        if (
+            $bestMatchSize !== 0 &&
+            ($groupDiffs === false ||
                 $this->oldTextIsOnlyWhitespace($bestMatchInOld, $bestMatchSize) === false
             )
         ) {
@@ -808,7 +812,7 @@ class HtmlDiff extends AbstractDiff
         return null;
     }
 
-    protected function oldTextIsOnlyWhitespace(int $startingAtWord, int $wordCount) : bool
+    protected function oldTextIsOnlyWhitespace(int $startingAtWord, int $wordCount): bool
     {
         $isWhitespace = true;
 
